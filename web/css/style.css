@@ -1,0 +1,22 @@
+.days {
+    text-align: center;
+}
+.days .day {
+    display: inline-block;
+    width: 13%;
+    min-width: 140px;
+}
+.days .day table {
+    width: 100%;
+}
+.days .day tbody td {
+    height: 3px;
+    padding: 0;
+    border: 0;
+}
+.days .day tbody td:hover {
+    background-color: darkred;
+}
+.days .day tbody td.reserved {
+    background-color: indianred;
+}

@@ -1,0 +1,31 @@
+{% block title %}Overzicht{% endblock %}
+{% block stylesheets %}
+    <link rel="stylesheet" href="{{ asset('css/style.css') }}" />
+{% endblock %}
+{% extends 'base.html.twig' %}
+{% block body %}
+
+    <div class="days">
+        {% for day in days %}
+            <div class="day">
+                <table class="table table-striped">
+                    <thead>
+                    <tr>
+                        <td>
+                            <h3>{{ day['date'] }}</h3>
+                        </td>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for key, reservation in day['reservations'] %}
+                        <tr>
+                            <td class="{{ reservation['status'] }}"></td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% endfor %}
+    </div>
+
+{% endblock %}
