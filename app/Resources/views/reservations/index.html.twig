@@ -5,27 +5,162 @@
 {% extends 'base.html.twig' %}
 {% block body %}
 
-    <div class="days">
-        {% for day in days %}
-            <div class="day">
-                <table class="table table-striped">
-                    <thead>
-                    <tr>
-                        <td>
-                            <h3>{{ day['date'] }}</h3>
-                        </td>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    {% for key, reservation in day['reservations'] %}
-                        <tr>
-                            <td class="{{ reservation['status'] }}"></td>
-                        </tr>
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <div class="days">
+                    {% for key, day in days %}
+                        <div class="day" id="day-{{ key+1 }}">
+                            <table class="times">
+                                <tbody>
+                                {% for i in 0..24 %}
+                                    <tr>
+                                        <td>{{ i }}</td>
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                            <table class="reservations-table table">
+                                <thead>
+                                <tr>
+                                    <td>
+                                        <h3>{{ day['date'] }}</h3>
+                                    </td>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% for key, reservation in day['reservations'] %}
+                                    <tr>
+                                        {#<td class="prefix">{{ key }}</td>#}
+                                        <td class="{{ reservation['status'] }} {{ reservation['full'] ? 'full' : '' }}" data-id="{{ reservation['id'] }}" data-data="{{ reservation['data'] }}" data-date="{{ day['date'] }}" data-begin="{{ reservation['begin'] ?: key }}" data-end="{{ reservation['end'] ?: key }}">
+                                            <span>{{ key }}</span>
+                                            {% if reservation['begin'] == key %}
+                                                <p>{{ reservation['data'] }}</p>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
                     {% endfor %}
-                    </tbody>
-                </table>
+                </div>
             </div>
-        {% endfor %}
+        </div>
+        <div class="row">
+            <div class="col-10 offset-1">
+                <form class="reservation-form" method="POST" action="">
+                    <div class="row">
+                        <div class="col-6">
+                            <label for="name">Naam</label>
+                            <input class="form-control" type="text" id="reservation-name" name="name" placeholder="Nieuwe afspraak">
+                        </div>
+                        <div class="col-2">
+                            <label for="reservation-begin-date">Datum</label>
+                            <input class="form-control" type="text" id="reservation-date" name="date">
+                        </div>
+                        <div class="col-2">
+                            <label for="reservation-begin-time">Begintijd</label>
+                            <input class="form-control" type="time" id="reservation-begin-time" name="begin">
+                        </div>
+                        <div class="col-2">
+                            <label for="reservation-end-time">Eindtijd</label>
+                            <input class="form-control" type="time" id="reservation-end-time" name="end">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-12">
+                            <input value="Opslaan" type="submit" id="reservation-submit" class="btn btn-secondary">
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
     </div>
+{% endblock %}
+{% block scripts %}
+    <script>
+        var begin = $('input#reservation-begin-time'),
+            end = $('input#reservation-end-time');
 
+        $('.days td').on('click', function() {
+            $('input#reservation-name').val($(this).data('data'));
+            $('input#reservation-date').val($(this).data('date'));
+
+            if(!$(this).hasClass('temp-reserved') && !$(this).hasClass('reserved')) {
+                var date = $(this).data('date');
+
+                if(!begin.val()) {
+                    begin.val($(this).data('begin'));
+                    $(this).addClass('temp-reserved');
+                    $('.days td span').not('.temp-reserved span').css('top', '5px');
+                } else if(end.val()) {
+                    begin.val($(this).data('begin'));
+                    end.val('');
+                    $('.days td').removeClass('temp-reserved');
+                    $(this).addClass('temp-reserved');
+                    $('.days td span').hide().not('.temp-reserved span').css('top', '5px');
+                    $('.days td').removeClass('error');
+                    $("#reservation-name").prop('disabled', false);
+                    $("#reservation-submit").prop('disabled', false);
+                } else {
+                    end.val($(this).data('begin'));
+                    $(this).addClass('temp-reserved');
+                    $('.days td span').not('.temp-reserved span').css('top', '-15px');
+
+                    var parts = begin.val().split(':');
+                    var hour = ('0' + parseInt(parts[0])).slice(-2);
+                    var minutes = ('0' +parseInt(parts[1])).slice(-2);
+
+                    while(hour+':'+minutes != end.val()) {
+                        var currentTd = $('.days td[data-date="'+date+'"][data-begin="'+hour+':'+minutes+'"]');
+
+                        if(currentTd.hasClass('reserved')) {
+                            currentTd.addClass('error');
+                            $("#reservation-name").prop('disabled', true);
+                            $("#reservation-submit").prop('disabled', true);
+                        } else {
+                            currentTd.addClass('temp-reserved');
+                        }
+
+                        hour = parseInt(hour);
+                        minutes = parseInt(minutes);
+
+                        minutes+=10;
+
+                        if(minutes === 60) {
+                            hour+=1;
+                            minutes = 0;
+                        }
+
+                        hour = ('0' + hour).slice(-2);
+                        minutes = ('0' + minutes).slice(-2);
+                    }
+
+                    $('#reservation-name').focus();
+                }
+
+                $(this).children('span').show();
+            } else {
+                begin.val($(this).data('begin'));
+                end.val($(this).data('end'));
+                $('.days td').removeClass('temp-reserved');
+                $('.days td span').hide();
+            }
+
+            if($(this).data('id')) {
+                $('form.reservation-form').attr('action', '/reservations/update/'+$(this).data('id'));
+            } else {
+                $('form.reservation-form').attr('action', '/reservations/store');
+            }
+        }).hover(function(){
+            if(!$(this).hasClass('temp-reserved') && !$(this).hasClass('reserved')) {
+                $(this).children('span').show();
+            }
+        }, function() {
+            if(!$(this).hasClass('temp-reserved')) {
+                $(this).children('span').hide();
+            }
+        });
+    </script>
 {% endblock %}

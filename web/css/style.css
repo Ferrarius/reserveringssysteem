@@ -1,22 +1,65 @@
 .days {
     text-align: center;
+    position: relative;
+}
+.days .times {
+    position: absolute;
+    margin-top: 40px;
+    font-size: 12px;
+    z-index: 20;
+}
+.days .times td {
+    height: 24px;
+    padding-right: 5px;
+    background-color: white;
 }
 .days .day {
     display: inline-block;
     width: 13%;
     min-width: 140px;
 }
-.days .day table {
+.days .day .reservations-table {
     width: 100%;
+    z-index: 25;
 }
-.days .day tbody td {
-    height: 3px;
+.days .day .reservations-table tbody td {
+    position: relative;
+    height: 4px;
+    border-top: 0;
+    border-bottom: 1px solid whitesmoke;
     padding: 0;
-    border: 0;
+    font-size: 12px;
+    cursor: default;
 }
-.days .day tbody td:hover {
-    background-color: darkred;
+.days .day .reservations-table tbody td.full {
+    background-color: whitesmoke;
 }
-.days .day tbody td.reserved {
+.days .day .reservations-table tbody td:hover {
+    background-color: darkblue;
+    border-bottom: darkblue 1px solid;
+}
+.days .day .reservations-table tbody td.reserved, .days .day .reservations-table tbody td.temp-reserved {
+    background-color: deepskyblue;
+    border-bottom: 1px solid deepskyblue;
+}
+.days .day .reservations-table tbody td.error {
     background-color: indianred;
+    border-bottom: 1px solid indianred;
+}
+.days .day .reservations-table tbody td span {
+    display: none;
+    position: absolute;
+    z-index: 10;
+    top: -15px;
+}
+.days .day .reservations-table tbody td p {
+    position: absolute;
+    margin: 5px 5px 5px 26px;
+    top: 0;
+    z-index: 25;
+}
+
+#reservation-submit {
+    margin-top: 10px;
+    width: 100%;
 }

@@ -14,12 +14,6 @@ class ReservationController extends Controller
      */
     public function indexAction(Request $request)
     {
-        $reservations = $this->getDoctrine()
-            ->getRepository('AppBundle:Reservation')
-            ->findAll();
-
-        var_dump($reservations[0]->getBegin());
-
         $week = $request->get('week') ?: date("W");
         $year = $request->get('year') ?: date("Y");
         $days = [];
@@ -41,52 +35,92 @@ class ReservationController extends Controller
                         $parseMinute = '00';
                     }
 
-                    $days[$day-1]['reservations'][$hour.':'.$parseMinute]['data'] = '';
-                    $days[$day-1]['reservations'][$hour.':'.$parseMinute]['status'] = '';
+                    $hour = sprintf("%02d", $hour);
+
+                    if(!isset($days[$day-1]['reservations'][$hour.':'.$parseMinute]['status'])) {
+                        $days[$day-1]['reservations'][$hour.':'.$parseMinute]['id'] = '';
+                        $days[$day-1]['reservations'][$hour.':'.$parseMinute]['data'] = '';
+                        $days[$day-1]['reservations'][$hour.':'.$parseMinute]['status'] = '';
+                        $days[$day-1]['reservations'][$hour.':'.$parseMinute]['begin'] = '';
+                        $days[$day-1]['reservations'][$hour.':'.$parseMinute]['end'] = '';
+                    }
+
+                    if($parseMinute == '00') {
+                        $days[$day-1]['reservations'][$hour.':'.$parseMinute]['full'] = 1;
+                    } else {
+                        $days[$day-1]['reservations'][$hour.':'.$parseMinute]['full'] = 0;
+                    }
+
+                    $americanDate = preg_replace('/\s+/', '', implode("-", array_reverse(explode("/", $days[$day-1]['date']))));
+
+                    if($reservation = $this->getDoctrine()->getManager()->createQuery("SELECT e FROM AppBundle:Reservation e WHERE e.begin = '".$americanDate." ".$hour.":".$parseMinute.":00'")->getResult()) {
+                        $reservation = $reservation[0];
+
+                        $begin = $reservation->getBegin();
+                        $loopTime = $reservation->getBegin();
+                        $end = $reservation->getEnd();
+
+                        while($loopTime < $end) {
+                            $days[$day-1]['reservations'][$loopTime->format("H:i")]['begin'] = $hour.':'.$parseMinute;
+                            $days[$day-1]['reservations'][$loopTime->format("H:i")]['id'] = $reservation->getId();
+                            $days[$day-1]['reservations'][$loopTime->format("H:i")]['end'] = $end->format("H:i");
+                            $days[$day-1]['reservations'][$loopTime->format("H:i")]['data'] = $reservation->getName();
+                            $days[$day-1]['reservations'][$loopTime->format("H:i")]['status'] = 'reserved';
+
+                            $loopTime->modify('+10 minutes');
+                        }
+                    }
                 }
             }
         }
-
-        $days[1]['reservations']['6:40']['status'] = 'reserved';
-        $days[1]['reservations']['6:50']['status'] = 'reserved';
-        $days[1]['reservations']['7:00']['status'] = 'reserved';
-        $days[1]['reservations']['7:10']['status'] = 'reserved';
-        $days[1]['reservations']['7:20']['status'] = 'reserved';
-        $days[1]['reservations']['7:30']['status'] = 'reserved';
-
-        $days[2]['reservations']['16:40']['status'] = 'reserved';
-        $days[2]['reservations']['16:50']['status'] = 'reserved';
-        $days[2]['reservations']['17:00']['status'] = 'reserved';
-        $days[2]['reservations']['17:10']['status'] = 'reserved';
-
-
-
-//        $days[$day-1]['reservations']['6:40']['reserved'] = 1;
 
         return $this->render('reservations/index.html.twig', ['days' => $days]);
     }
 
     /**
-     * @Route("/reservations/create", name="reservations_create")
+     * @Route("/reservations/store", name="reservations_create")
      */
-    public function createAction(Request $request)
+    public function storeAction(Request $request)
     {
-        return $this->render('reservations/create.html.twig');
+        $em = $this->getDoctrine()->getManager();
+
+        $date = preg_replace('/\s+/', '', implode("-", array_reverse(explode("/", $request->get('date')))));
+
+        $reservation = new Reservation();
+        $reservation->setName($request->get('name'));
+        $reservation->setBegin(new \DateTime($date.' '.$request->get('begin')));
+        $reservation->setEnd(new \DateTime($date.' '.$request->get('end')));
+        $reservation->setLocationId(1);
+
+        $em->persist($reservation);
+
+        $em->flush();
+
+        return $this->redirectToRoute('reservations');
     }
 
     /**
-     * @Route("/reservations/details/{id}", name="reservations_details")
+     * @Route("/reservations/update/{id}", name="reservations_update")
      */
-    public function detailsAction($id)
+    public function updateAction($id, Request $request)
     {
-        return $this->render('reservations/details.html.twig');
-    }
+        $em = $this->getDoctrine()->getManager();
+        $reservation = $em->getRepository(Reservation::class)->find($id);
 
-    /**
-     * @Route("/reservations/edit/{id}", name="reservations_edit")
-     */
-    public function editAction($id, Request $request)
-    {
-        return $this->render('reservations/edit.html.twig');
+        if(!$reservation) {
+            throw $this->createNotFoundException(
+                'Geen reservering gevonden met nummer '.$id
+            );
+        }
+
+        $date = preg_replace('/\s+/', '', implode("-", array_reverse(explode("/", $request->get('date')))));
+
+        $reservation->setName($request->get('name'));
+        $reservation->setBegin(new \DateTime($date.' '.$request->get('begin')));
+        $reservation->setEnd(new \DateTime($date.' '.$request->get('end')));
+
+        $em->flush();
+
+        return $this->redirectToRoute('reservations');
     }
 }
