@@ -62,4 +62,12 @@
 #reservation-submit {
     margin-top: 10px;
     width: 100%;
+    background-color: dodgerblue;
+}
+
+.delete-button {
+    display: none;
+    color: darkred;
+    font-size: 44px;
+    font-family: "Arial";
 }

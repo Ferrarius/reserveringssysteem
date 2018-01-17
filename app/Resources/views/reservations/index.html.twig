@@ -51,7 +51,7 @@
             <div class="col-10 offset-1">
                 <form class="reservation-form" method="POST" action="">
                     <div class="row">
-                        <div class="col-6">
+                        <div class="col-5">
                             <label for="name">Naam</label>
                             <input class="form-control" type="text" id="reservation-name" name="name" placeholder="Nieuwe afspraak">
                         </div>
@@ -67,10 +67,13 @@
                             <label for="reservation-end-time">Eindtijd</label>
                             <input class="form-control" type="time" id="reservation-end-time" name="end">
                         </div>
+                        <div class="col-1">
+                            <a href="" class="delete-button">X x</a>
+                        </div>
                     </div>
                     <div class="row">
                         <div class="col-12">
-                            <input value="Opslaan" type="submit" id="reservation-submit" class="btn btn-secondary">
+                            <input value="Opslaan" type="submit" id="reservation-submit" class="btn btn-primary">
                         </div>
                     </div>
                 </form>
@@ -150,8 +153,11 @@
 
             if($(this).data('id')) {
                 $('form.reservation-form').attr('action', '/reservations/update/'+$(this).data('id'));
+                $('.delete-button').show();
+                $('.delete-button').attr('href', '/reservations/delete/'+$(this).data('id'));
             } else {
                 $('form.reservation-form').attr('action', '/reservations/store');
+                $('.delete-button').hide();
             }
         }).hover(function(){
             if(!$(this).hasClass('temp-reserved') && !$(this).hasClass('reserved')) {

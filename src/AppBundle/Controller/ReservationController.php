@@ -123,4 +123,18 @@ class ReservationController extends Controller
 
         return $this->redirectToRoute('reservations');
     }
+
+    /**
+     * @Route("/reservations/delete/{id}", name="reservations_delete")
+     */
+    public function deleteAction($id)
+    {
+        $em = $this->getDoctrine()->getManager();
+        $reservation = $em->getRepository(Reservation::class)->find($id);
+
+        $em->remove($reservation);
+        $em->flush();
+
+        return $this->redirectToRoute('reservations');
+    }
 }
