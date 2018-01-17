@@ -2,10 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="de714a22-31ec-40dc-90ec-3ecba5f617aa" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/Resources/views/reservations/index.html.twig" afterPath="$PROJECT_DIR$/app/Resources/views/reservations/index.html.twig" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/config/parameters.yml.dist" afterPath="$PROJECT_DIR$/app/config/parameters.yml.dist" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/AppBundle/Controller/ReservationController.php" afterPath="$PROJECT_DIR$/src/AppBundle/Controller/ReservationController.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/web/css/style.css" afterPath="$PROJECT_DIR$/web/css/style.css" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -443,12 +440,12 @@
       <workItem from="1513156276314" duration="20693000" />
       <workItem from="1513603606033" duration="1090000" />
       <workItem from="1513721850418" duration="38418000" />
-      <workItem from="1515444485290" duration="25801000" />
+      <workItem from="1515444485290" duration="25870000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="103916000" />
+    <option name="totallyTimeSpent" value="103985000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="23" width="1440" height="877" extended-state="6" />
