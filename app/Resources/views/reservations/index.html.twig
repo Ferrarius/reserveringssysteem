@@ -68,7 +68,7 @@
                             <input class="form-control" type="time" id="reservation-end-time" name="end">
                         </div>
                         <div class="col-1">
-                            <a href="" class="delete-button">X x</a>
+                            <a href="" class="delete-button">X</a>
                         </div>
                     </div>
                     <div class="row">
@@ -93,11 +93,14 @@
             if(!$(this).hasClass('temp-reserved') && !$(this).hasClass('reserved')) {
                 var date = $(this).data('date');
 
+                //Change the time input fields
                 if(!begin.val()) {
+                    //If both times are empty
                     begin.val($(this).data('begin'));
                     $(this).addClass('temp-reserved');
                     $('.days td span').not('.temp-reserved span').css('top', '5px');
                 } else if(end.val()) {
+                    //If both times are filled
                     begin.val($(this).data('begin'));
                     end.val('');
                     $('.days td').removeClass('temp-reserved');
@@ -107,6 +110,7 @@
                     $("#reservation-name").prop('disabled', false);
                     $("#reservation-submit").prop('disabled', false);
                 } else {
+                    //If only first time is filled
                     end.val($(this).data('begin'));
                     $(this).addClass('temp-reserved');
                     $('.days td span').not('.temp-reserved span').css('top', '-15px');
@@ -115,6 +119,7 @@
                     var hour = ('0' + parseInt(parts[0])).slice(-2);
                     var minutes = ('0' +parseInt(parts[1])).slice(-2);
 
+                    //Fill all temporary reserved fields
                     while(hour+':'+minutes != end.val()) {
                         var currentTd = $('.days td[data-date="'+date+'"][data-begin="'+hour+':'+minutes+'"]');
 
@@ -136,6 +141,7 @@
                             minutes = 0;
                         }
 
+                        //Add leading zero's
                         hour = ('0' + hour).slice(-2);
                         minutes = ('0' + minutes).slice(-2);
                     }
@@ -152,10 +158,12 @@
             }
 
             if($(this).data('id')) {
+                //If existing reservation
                 $('form.reservation-form').attr('action', '/reservations/update/'+$(this).data('id'));
                 $('.delete-button').show();
                 $('.delete-button').attr('href', '/reservations/delete/'+$(this).data('id'));
             } else {
+                //If new reservation
                 $('form.reservation-form').attr('action', '/reservations/store');
                 $('.delete-button').hide();
             }

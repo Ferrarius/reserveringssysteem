@@ -14,6 +14,7 @@ class ReservationController extends Controller
      */
     public function indexAction(Request $request)
     {
+        //Get week and year from get value or current
         $week = $request->get('week') ?: date("W");
         $year = $request->get('year') ?: date("Y");
         $days = [];
@@ -25,18 +26,22 @@ class ReservationController extends Controller
             {
                 for($minute=0; $minute<=60; $minute+=10)
                 {
+                    //Reset minute count on full hour
                     if($minute == 60) {
                         $parseMinute = 0;
                     } else {
                         $parseMinute = $minute;
                     }
 
+                    //Add leading zero to single zero
                     if($parseMinute == 0) {
                         $parseMinute = '00';
                     }
 
+                    //Add leading zero to single int's
                     $hour = sprintf("%02d", $hour);
 
+                    //Define array items to fill later on
                     if(!isset($days[$day-1]['reservations'][$hour.':'.$parseMinute]['status'])) {
                         $days[$day-1]['reservations'][$hour.':'.$parseMinute]['id'] = '';
                         $days[$day-1]['reservations'][$hour.':'.$parseMinute]['data'] = '';
@@ -60,6 +65,7 @@ class ReservationController extends Controller
                         $loopTime = $reservation->getBegin();
                         $end = $reservation->getEnd();
 
+                        //Fill all items that are reserved
                         while($loopTime < $end) {
                             $days[$day-1]['reservations'][$loopTime->format("H:i")]['begin'] = $hour.':'.$parseMinute;
                             $days[$day-1]['reservations'][$loopTime->format("H:i")]['id'] = $reservation->getId();
